@@ -1,4 +1,5 @@
 console.log("script.js loaded");
+
 const generateBtn = document.getElementById("generateBtn");
 const buttonText = generateBtn.querySelector("p");
 const chartContainer = document.querySelector(".chart-container");
@@ -8,41 +9,69 @@ let walletChart = null;
 let chartGenerated = false;
 let currentWallet = "";
 
-// Validate Solana wallet address using regex
 function isValidSolanaAddress(address) {
   const base58Regex = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
   return base58Regex.test(address);
 }
 
-// Get sol balance and tokens
 async function getSolBalance(walletAddress) {
-  // Corrected domain from solechart-api.onrender.com to solchart.onrender.com
-  const response = await fetch(`https://solchart.onrender.com/api/wallet/${walletAddress}/balance`);
+  //const response = await fetch(`https://solchart.onrender.com/api/wallet/${walletAddress}/balance`);
+  const response = await fetch(`http://127.0.0.1:10000/api/wallet/${walletAddress}/balance`);
+  if (!response.ok) {
+    throw new Error("Unable to fetch SOL balance.");
+  }
 
-  if (!response.ok) throw new Error("Unable to fetch SOL balance.");
-
-  return await response.json(); // returns { sol, tokens }
+  return await response.json();
 }
 
-// Create chart
-function createSolChart(sol, tokens) {
-  const tokenList = tokens || [];
-  const labels = ["SOL", ...tokenList.map(t => t.symbol || "Unknown")];
-  const balances = [sol, ...tokenList.map(t => t.balance || 0)];
+function formatUsd(value) {
+  value = Number(value);
 
-  // If chart already exists, destroy it before creating a new one
+  if (value >= 1) {
+    return "$" + value.toFixed(2);
+  }
+
+  if (value >= 0.01) {
+    return "$" + value.toFixed(4);
+  }
+
+  if (value >= 0.0001) {
+    return "$" + value.toFixed(6);
+  }
+
+  return "$" + value.toFixed(8);
+}
+
+function createSolChart(sol, tokens, solUsdValue) {
+  const tokenList = tokens || [];
+
+  // Only keep tokens with a real USD value
+  const minUsdValue = 0.01;
+
+  const pricedTokens = tokenList.filter(token => {
+    return token.usdValue && token.usdValue >= minUsdValue;
+  });
+
+  const labels = pricedTokens.map(t => t.symbol || "Unknown");
+  const usdValues = pricedTokens.map(t => t.usdValue);
+
+  console.log("Priced tokens:", pricedTokens);
+  console.log("Chart labels:", labels);
+  console.log("Chart USD values:", usdValues);
+
   if (walletChart !== null) {
     walletChart.destroy();
   }
 
   const ctx = document.getElementById("walletChart").getContext("2d");
+
   walletChart = new Chart(ctx, {
     type: "bar",
     data: {
-      labels,
+      labels: labels,
       datasets: [{ 
-        label: "Token Balances", 
-        data: balances,
+        label: "Token USD Value", 
+        data: usdValues,
         backgroundColor: "rgba(54, 162, 235, 0.6)",
         borderColor: "rgba(54, 162, 235, 1)",
         borderWidth: 1
@@ -53,7 +82,21 @@ function createSolChart(sol, tokens) {
       maintainAspectRatio: false,
       scales: {
         y: {
-          beginAtZero: true
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return formatUsd(value);
+            }
+          }
+        }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return formatUsd(context.raw);
+            }
+          }
         }
       }
     }
@@ -81,7 +124,6 @@ async function handleGenerate() {
     return;
   }
 
-  // Wallet validation 
   const walletAddress = walletInput.value.trim();
 
   if (walletAddress === "") {
@@ -100,25 +142,26 @@ async function handleGenerate() {
     buttonText.textContent = "Loading...";
 
     const data = await getSolBalance(walletAddress);
+    console.log("Wallet data:", data);
+console.log("Tokens:", data.tokens);
     
-    // Check if data is valid
-    if (data && typeof data.sol !== 'undefined') {
-      createSolChart(data.sol, data.tokens);
+    if (data && typeof data.sol !== "undefined") {
+      createSolChart(data.sol, data.tokens, data.solUsdValue);
+
       currentWallet = walletAddress;
       chartGenerated = true;
       chartContainer.classList.remove("hidden");
-      buttonText.textContent = "Enter New Address";
+      buttonText.textContent = "Clear";
     } else {
       throw new Error("Invalid data format received.");
     }
   } catch (error) {
     console.error(error);
-    alert("Could not get SOL balance. Please try again.");
+    alert("Could not get wallet data. Please try again.");
     buttonText.textContent = "Generate";
   }
 }
 
-// Event Listeners
 generateBtn.addEventListener("click", handleGenerate);
 
 walletInput.addEventListener("keydown", (event) => {
@@ -126,3 +169,12 @@ walletInput.addEventListener("keydown", (event) => {
     handleGenerate();
   }
 });
+
+// Reload page when SolChart header is clicked
+const headerTitle = document.querySelector(".site-header h1");
+if (headerTitle) {
+  headerTitle.addEventListener("click", () => {
+    window.location.reload();
+  });
+}
+

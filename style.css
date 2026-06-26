@@ -376,3 +376,7 @@ p {
   display: none;
 }
 
+
+.site-header h1 {
+  cursor: pointer;
+}
