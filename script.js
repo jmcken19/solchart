@@ -1,3 +1,4 @@
+console.log("script.js loaded");
 const generateBtn = document.getElementById("generateBtn");
 const buttonText = generateBtn.querySelector("p");
 const chartContainer = document.querySelector(".chart-container");
@@ -13,27 +14,48 @@ function isValidSolanaAddress(address) {
   return base58Regex.test(address);
 }
 
-//get sol balance
+// Get sol balance and tokens
 async function getSolBalance(walletAddress) {
   const response = await fetch(`https://solechart-api.onrender.com/api/wallet/${walletAddress}/balance`);
 
-
   if (!response.ok) throw new Error("Unable to fetch SOL balance.");
 
-  return await response.json(); // now returns { sol, tokens }
+  return await response.json(); // returns { sol, tokens }
 }
-//create chart
-function createSolChart(sol, tokens) {
-  const labels = ["SOL", ...tokens.map(t => t.symbol)];
-  const balances = [sol, ...tokens.map(t => t.balance)];
 
-  walletChart = new Chart(document.getElementById("walletChart"), {
+// Create chart
+function createSolChart(sol, tokens) {
+  const tokenList = tokens || [];
+  const labels = ["SOL", ...tokenList.map(t => t.symbol || "Unknown")];
+  const balances = [sol, ...tokenList.map(t => t.balance || 0)];
+
+  // If chart already exists, destroy it before creating a new one
+  if (walletChart !== null) {
+    walletChart.destroy();
+  }
+
+  const ctx = document.getElementById("walletChart").getContext("2d");
+  walletChart = new Chart(ctx, {
     type: "bar",
     data: {
       labels,
-      datasets: [{ label: "Token Balances", data: balances }]
+      datasets: [{ 
+        label: "Token Balances", 
+        data: balances,
+        backgroundColor: "rgba(54, 162, 235, 0.6)",
+        borderColor: "rgba(54, 162, 235, 1)",
+        borderWidth: 1
+      }]
     },
-    options: { responsive: true, maintainAspectRatio: false }
+    options: { 
+      responsive: true, 
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
   });
 }
 
@@ -58,7 +80,7 @@ async function handleGenerate() {
     return;
   }
 
-  //wallet validation 
+  // Wallet validation 
   const walletAddress = walletInput.value.trim();
 
   if (walletAddress === "") {
@@ -77,16 +99,17 @@ async function handleGenerate() {
     buttonText.textContent = "Loading...";
 
     const data = await getSolBalance(walletAddress);
-    createSolChart(data.sol, data.tokens); // add tokens here
-
-    currentWallet = walletAddress;
-    chartGenerated = true;
-
-    chartContainer.classList.remove("hidden");
-
-    createSolChart(data.sol);
-
-    buttonText.textContent = "Enter New Address";
+    
+    // Check if data is valid
+    if (data && typeof data.sol !== 'undefined') {
+      createSolChart(data.sol, data.tokens);
+      currentWallet = walletAddress;
+      chartGenerated = true;
+      chartContainer.classList.remove("hidden");
+      buttonText.textContent = "Enter New Address";
+    } else {
+      throw new Error("Invalid data format received.");
+    }
   } catch (error) {
     console.error(error);
     alert("Could not get SOL balance. Please try again.");
@@ -94,9 +117,10 @@ async function handleGenerate() {
   }
 }
 
+// Event Listeners
 generateBtn.addEventListener("click", handleGenerate);
 
-walletInput.addEventListener("keydown", function (event) {
+walletInput.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {
     handleGenerate();
   }
