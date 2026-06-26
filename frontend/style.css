@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+
 :root {
   --bg-color: #F2E7D9;
   --green: #68C46E;
@@ -39,9 +42,13 @@ h1 {
 }
 
 .hero-content {
-  width: 100%;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bt {
+  margin-top: 28px;
 }
 
 footer {
@@ -50,6 +57,7 @@ footer {
 }
 
 /* Textbox */
+/* source -> https://www.youtube.com/watch?v=3o_QuTtDIUI */
 
 .group {
   position: relative;
@@ -142,4 +150,217 @@ label {
     width: 0;
     background: transparent;
   }
+}
+
+html {
+  height: 100%;
+  width: 100%;
+}
+
+p {
+  margin: 0;
+}
+
+body {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bt {
+  width: 100px;
+  cursor: pointer;
+  position: relative;
+  font-family: "Roboto", sans-serif;
+  text-transform: uppercase;
+  color: #009688;
+  letter-spacing: 0.5px;
+  user-select: none;
+  outline: none;
+  text-decoration: none;
+  text-align: center;
+  margin-top: 28px;
+}
+
+.more-bt {
+  border-right: 2px solid #009688;
+  border-bottom: 2px solid #009688;
+  padding: 17px 29px 15px 31px;
+  border-color: #009688;
+}
+
+.more-bt:before,
+.more-bt:after {
+  content: " ";
+  display: block;
+  background: #009688;
+  position: absolute;
+  transition: 0.5s;
+  z-index: 10;
+}
+
+.more-bt:before {
+  left: 0;
+  bottom: 0;
+  height: calc(100% - 17px);
+  width: 2px;
+}
+
+.more-bt:after {
+  top: 0;
+  right: 0;
+  width: calc(100% - 17px);
+  height: 2px;
+}
+
+.more-bt .fl,
+.more-bt .sfl {
+  position: absolute;
+  right: 0;
+  height: 100%;
+  width: 0;
+  z-index: 2;
+  background: #009688;
+  top: 0;
+  transition: 0.5s;
+  transition-delay: 0.1s;
+}
+
+.more-bt .sfl {
+  z-index: 1;
+  background: #00796b;
+  transition: 0.7s;
+}
+
+.more-bt p {
+  font-size: 14px;
+  transition: 0.5s;
+  position: relative;
+  z-index: 5;
+}
+
+.more-bt:hover p {
+  color: #fff;
+}
+
+.more-bt:hover .fl,
+.more-bt:hover .sfl {
+  transition-delay: 0s;
+  width: 100%;
+}
+
+.more-bt:hover:before {
+  height: 100%;
+}
+
+.more-bt i {
+  position: absolute;
+  display: block;
+  top: 1px;
+  left: 1px;
+  transition: 0.5s;
+  z-index: 10;
+}
+
+.more-bt i:after,
+.more-bt i:before {
+  content: " ";
+  display: block;
+  width: 2px;
+  height: 20px;
+  background: #009688;
+  position: absolute;
+  margin: -10px -1px;
+  left: 50%;
+  top: 50%;
+  transition: 0.3s;
+}
+
+.more-bt i:before {
+  transform: rotate(90deg);
+}
+
+.more-bt:hover i:after {
+  margin: 0px -1px;
+}
+
+.more-bt:hover i:before {
+  margin: -10px 0px -10px 8px;
+}
+
+
+
+.more-bt .cross:before,
+.more-bt .cross:after {
+  content: " ";
+  background: #fff;
+  display: block;
+  position: absolute;
+  opacity: 0;
+  transition-duration: 0.3s;
+}
+
+.more-bt .cross:before {
+  width: 100%;
+  height: 2px;
+  top: 8px;
+  left: 0;
+  transform: translateX(50px) scaleX(0);
+}
+
+.more-bt .cross:after {
+  width: 2px;
+  height: 100%;
+  left: 8px;
+  top: 0;
+  transform: translateY(20px) scaleY(0);
+}
+
+.more-bt:hover .cross:before,
+.more-bt:hover .cross:after {
+  transform: none;
+  opacity: 1;
+  transition-delay: 0.2s;
+}
+
+.more-bt .cross:after {
+    width: 2px;
+    height: 100%;
+    left: 8px;
+    top: 0;
+    -webkit-transform: translateY(20px) scaleY(0);
+    -ms-transform: translateY(20px) scaleY(0);
+    transform: translateY(20px) scaleY(0);
+    -webkit-transition-duration: .4s;
+    transition-duration: .4s;
+}
+
+.more-bt .cross:before, .more-bt .cross:after {
+    content: " ";
+    background: #fff;
+    display: block;
+    position: absolute;
+    opacity: 0;
+    -webkit-transition-duration: .3s;
+    transition-duration: .3s;
+    -webkit-transition-delay: 0s;
+    transition-delay: 0s;
+    -webkit-transition-timing-function: cubic-bezier(0.86, 0, 0.07, 1);
+    transition-timing-function: cubic-bezier(0.86, 0, 0.07, 1);
+}
+
+.more-bt:hover .cross:after, .more-bt:hover .cross:before, .more-bt.hvd .cross:after, .more-bt.hvd .cross:before {
+    -webkit-transform: none;
+    -ms-transform: none;
+    transform: none;
+    opacity: 1;
+    -webkit-transition-delay: .2s;
+    transition-delay: .2s;
+}
+
+.more-bt:hover .cross:after, .more-bt.hvd .cross:after {
+    -webkit-transition-duration: .6s;
+    transition-duration: .6s;
 }

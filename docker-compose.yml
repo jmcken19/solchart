@@ -13,9 +13,9 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   # Service 2: Adminer (A web-based GUI to look at your SQL tables)
-  solechart-db-gui:
+  solchart-db-gui:
     image: adminer
-    container_name: solechart_db_gui
+    container_name: solchart_db_gui
     ports:
       - "8080:8080"
 
