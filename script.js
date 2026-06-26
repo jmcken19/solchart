@@ -347,6 +347,12 @@ walletInput.addEventListener("keydown", (event) => {
   }
 });
 
+walletInput.addEventListener("click", () => {
+  if (chartGenerated) {
+    resetChart();
+  }
+});
+
 // Reload page when SolChart header is clicked
 const headerTitle = document.querySelector(".site-header h1");
 if (headerTitle) {

@@ -460,3 +460,11 @@ p {
 .site-header h1 {
   cursor: pointer;
 }
+
+.price-disclaimer {
+  font-size: 10px;
+  color: rgba(53, 38, 19, 0.45);
+  text-align: center;
+  margin-top: 8px;
+  letter-spacing: 0.2px;
+}
