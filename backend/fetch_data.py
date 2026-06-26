@@ -1,71 +1,14 @@
-import os
 import requests
-from dotenv import load_dotenv
-import json
 
+def get_token_prices(mint_addresses):
+    if not mint_addresses:
+        return {}
 
-load_dotenv()
+    ids = ",".join(mint_addresses)
 
-api_key = os.getenv("HELIUS_API_KEY")
+    url = f"https://api.jup.ag/price/v3?ids={ids}"
 
-wallet = "FuUKjgQRuBe7zsNcdnUyRx4kwh8hCSBrjL8AAcgzTxeP"
+    response = requests.get(url)
+    response.raise_for_status()
 
-url = f"https://mainnet.helius-rpc.com/?api-key={api_key}"
-
-payload = {
-    "jsonrpc": "2.0",
-    "id": "1",
-    "method": "getAssetsByOwner",
-    "params": {
-        "ownerAddress": wallet,
-        "page": 1,
-        "limit": 1000,
-        "displayOptions": {
-            "showFungible": True,
-            "showNativeBalance": True
-        }
-    }
-}
-
-headers = {
-    "Content-Type": "application/json"
-}
-
-response = requests.post(url, json=payload, headers=headers)
-print("Status code:", response.status_code)
-
-data = response.json()
-items = data["result"]["items"]
-
-tokens = []
-
-for item in items:
-    interface_type = item.get("interface")
-
-    if interface_type == "FungibleToken":
-        content = item.get("content", {})
-        metadata = content.get("metadata", {})
-        token_info = item.get("token_info", {})
-
-        name = metadata.get("name", "Unknown")
-        symbol = metadata.get("symbol", "Unknown")
-
-        raw_balance = token_info.get("balance", 0)
-        decimals = token_info.get("decimals", 0)
-
-        scaled_balance = raw_balance / (10 ** decimals) if decimals else raw_balance
-
-        if scaled_balance > 0:
-            tokens.append({
-                "name": name,
-                "symbol": symbol,
-                "balance": scaled_balance
-            })
-
-print(tokens)
-
-#json file creation
-with open("data.json", "w") as file:
-    json.dump(data, file, indent=4)
-
-
+    return response.json()
