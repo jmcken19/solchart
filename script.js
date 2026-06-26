@@ -79,6 +79,22 @@ function destroyChart() {
   }
 }
 
+const disclaimerPlugin = {
+  id: "disclaimer",
+  afterDraw(chart) {
+    const { ctx, chartArea } = chart;
+    if (!chartArea) return;
+    const { left, top, width } = chartArea;
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.textBaseline = "bottom";
+    ctx.fillStyle = "rgba(53, 38, 19, 0.38)";
+    ctx.font = "9px Arial, Helvetica, sans-serif";
+    ctx.fillText("Prices are a snapshot and may not reflect 100% accuracy.", left + width / 2, top - 4);
+    ctx.restore();
+  }
+};
+
 function showHoldingsChart(data) {
   const tokenList = data.tokens || [];
   const minUsdValue = 0.01;
@@ -119,6 +135,7 @@ function showHoldingsChart(data) {
         }
       },
       plugins: {
+        legend: { display: false },
         tooltip: {
           callbacks: {
             label: function(context) {
@@ -127,7 +144,8 @@ function showHoldingsChart(data) {
           }
         }
       }
-    }
+    },
+    plugins: [disclaimerPlugin]
   });
 }
 
@@ -149,7 +167,7 @@ function showHistoryChart(snapshots) {
           tooltip: { enabled: false }
         }
       },
-      plugins: [{
+      plugins: [disclaimerPlugin, {
         id: "emptyState",
         afterDraw(chart) {
           const { ctx: c, chartArea: { left, top, width, height } } = chart;
@@ -203,6 +221,7 @@ function showHistoryChart(snapshots) {
         }
       },
       plugins: {
+        legend: { display: false },
         tooltip: {
           callbacks: {
             label: function(context) {
@@ -211,7 +230,8 @@ function showHistoryChart(snapshots) {
           }
         }
       }
-    }
+    },
+    plugins: [disclaimerPlugin]
   });
 }
 
