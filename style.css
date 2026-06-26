@@ -359,9 +359,75 @@ p {
 }
 
 
+/* Chart toggle */
+
+.chart-toggle {
+  display: flex;
+  justify-content: center;
+  background: rgba(53, 38, 19, 0.1);
+  border-radius: 20px;
+  padding: 4px;
+  width: fit-content;
+  margin: 0 auto 16px auto;
+}
+
+.toggle-btn {
+  background: transparent;
+  border: none;
+  border-radius: 16px;
+  padding: 6px 22px;
+  font-size: 13px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: var(--brown);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+  letter-spacing: 0.3px;
+  font-weight: 500;
+}
+
+.toggle-btn.active {
+  background: var(--green);
+  color: #fff;
+}
+
+.toggle-btn:not(.active):hover {
+  background: rgba(53, 38, 19, 0.08);
+}
+
+.period-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.period-btn {
+  background: transparent;
+  border: 1px solid rgba(53, 38, 19, 0.2);
+  border-radius: 12px;
+  padding: 3px 12px;
+  font-size: 11px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: var(--brown);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  letter-spacing: 0.3px;
+}
+
+.period-btn.active {
+  background: var(--olive);
+  color: #fff;
+  border-color: var(--olive);
+}
+
+.period-btn:not(.active):hover {
+  background: rgba(53, 38, 19, 0.08);
+}
+
 /* Chart.js */
 
 .chart-container {
+  position: relative;
   width: 700px;
   max-width: 90vw;
   height: 350px;
@@ -370,6 +436,20 @@ p {
   background: rgba(255, 255, 255, 0.25);
   border: 1px solid rgba(53, 38, 19, 0.2);
   border-radius: 16px;
+}
+
+.wallet-total {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--brown);
+  background: rgba(242, 231, 217, 0.82);
+  border: 1px solid rgba(53, 38, 19, 0.12);
+  border-radius: 8px;
+  padding: 5px 10px;
+  pointer-events: none;
 }
 
 .hidden {

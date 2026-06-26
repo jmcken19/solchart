@@ -31,7 +31,17 @@
 </a>
 
 <div class="chart-container hidden">
+  <div class="chart-toggle">
+    <button class="toggle-btn active" data-chart="holdings">Holdings</button>
+    <button class="toggle-btn" data-chart="history">History</button>
+  </div>
+  <div class="period-toggle hidden">
+    <button class="period-btn active" data-period="1W">1W</button>
+    <button class="period-btn" data-period="1M">1M</button>
+    <button class="period-btn" data-period="3M">3M</button>
+  </div>
   <canvas id="walletChart"></canvas>
+  <div class="wallet-total"></div>
 </div>
 
     </section>
