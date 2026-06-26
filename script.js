@@ -291,7 +291,12 @@ async function handleGenerate() {
   try {
     buttonText.textContent = "Loading...";
 
+    const wakeTimer = setTimeout(() => {
+      buttonText.textContent = "Starting up...";
+    }, 6000);
+
     const data = await getSolBalance(walletAddress);
+    clearTimeout(wakeTimer);
     console.log("Wallet data:", data);
 
     if (data && typeof data.sol !== "undefined") {
