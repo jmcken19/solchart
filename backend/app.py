@@ -2,6 +2,7 @@ from flask import Flask, send_from_directory, request, jsonify
 from flask_cors import CORS
 import os
 import requests
+from datetime import datetime, timezone
 from dotenv import load_dotenv
 from fetch_data import get_token_prices
 
@@ -9,6 +10,35 @@ load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(BASE_DIR, ".."))
+
+PERIOD_DAYS = {"1W": 7, "1M": 30, "3M": 90}
+MIN_LIQUIDITY = 100  # Minimum $100 USD liquidity required to trust a Jupiter price
+
+
+def get_portfolio_history(sol, token_usd, period):
+    """
+    Fetches historical SOL prices from CoinGecko and combines with the
+    wallet's current SOL balance and token USD value to produce a time
+    series of estimated total portfolio value.
+    """
+    days = PERIOD_DAYS.get(period, 7)
+
+    response = requests.get(
+        "https://api.coingecko.com/api/v3/coins/solana/market_chart",
+        params={"vs_currency": "usd", "days": days},
+        timeout=10
+    )
+    response.raise_for_status()
+
+    prices = response.json().get("prices", [])  # [[timestamp_ms, price], ...]
+
+    return [
+        {
+            "timestamp": datetime.fromtimestamp(ts_ms / 1000, tz=timezone.utc).isoformat(),
+            "totalUsd": round(sol * price + token_usd, 2)
+        }
+        for ts_ms, price in prices
+    ]
 
 app = Flask(__name__)
 CORS(app)
@@ -99,10 +129,13 @@ def get_wallet_balance(wallet_address):
             mint = token.get("mint")
             price_data = prices.get(mint, {})
 
+            liquidity = price_data.get("liquidity", 0)
             usd_price = price_data.get("usdPrice", 0)
-            usd_value = token["balance"] * usd_price
 
-            token["usdPrice"] = usd_price
+            # Ignore prices from tokens with insufficient market liquidity
+            usd_value = token["balance"] * usd_price if liquidity >= MIN_LIQUIDITY else 0
+
+            token["usdPrice"] = usd_price if liquidity >= MIN_LIQUIDITY else 0
             token["usdValue"] = usd_value
 
         sol_mint = "So11111111111111111111111111111111111111112"
@@ -121,6 +154,19 @@ def get_wallet_balance(wallet_address):
         return jsonify({
             "error": "Failed to fetch balance"
         }), 500
+
+
+@app.route("/api/wallet/<wallet_address>/history")
+def get_wallet_history(wallet_address):
+    period = request.args.get("period", "1W")
+    try:
+        sol = float(request.args.get("sol", 0))
+        token_usd = float(request.args.get("tokenUsd", 0))
+        snapshots = get_portfolio_history(sol, token_usd, period)
+        return jsonify(snapshots)
+    except Exception as e:
+        print(f"Error fetching history: {e}")
+        return jsonify([]), 500
 
 
 if __name__ == "__main__":
