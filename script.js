@@ -16,7 +16,8 @@ function isValidSolanaAddress(address) {
 
 // Get sol balance and tokens
 async function getSolBalance(walletAddress) {
-  const response = await fetch(`https://solechart-api.onrender.com/api/wallet/${walletAddress}/balance`);
+  // Corrected domain from solechart-api.onrender.com to solchart.onrender.com
+  const response = await fetch(`https://solchart.onrender.com/api/wallet/${walletAddress}/balance`);
 
   if (!response.ok) throw new Error("Unable to fetch SOL balance.");
 
