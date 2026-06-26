@@ -15,9 +15,8 @@ function isValidSolanaAddress(address) {
 
 //get sol balance
 async function getSolBalance(walletAddress) {
-  const response = await fetch(
-    `http://127.0.0.1:5000/api/wallet/${walletAddress}/balance`  // same, no change
-  );
+  const response = await fetch(`https://solechart-api.onrender.com/api/wallet/${walletAddress}/balance`);
+
 
   if (!response.ok) throw new Error("Unable to fetch SOL balance.");
 
