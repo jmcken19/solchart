@@ -11,30 +11,38 @@
   <header class="site-header">
     <h1>SolChart</h1>
   </header>
-<main class="hero">
-  <section class="hero-content">
 
-    <div class="group">
-      <input required type="text" class="input">
-      <span class="highlight"></span>
-      <span class="bar"></span>
-      <label>Paste Solana Wallet Address</label>
-    </div>
+  <main class="hero">
+    <section class="hero-content">
 
-    <a class="bt more-bt" href="javascript:void(0)">
-      <span class="fl"></span>
-      <span class="sfl"></span>
-      <span class="cross"></span>
-      <i></i>
-      <p>Add</p>
-    </a>
+     <div class="group">
+  <input required type="text" class="input">
+  <span class="highlight"></span>
+  <span class="bar"></span>
+  <label>Paste Solana Wallet Address</label>
+</div>
 
-  </section>
-</main>
+<a id="generateBtn" class="bt more-bt" href="javascript:void(0)">
+  <span class="fl"></span>
+  <span class="sfl"></span>
+  <span class="cross"></span>
+  <i></i>
+  <p>Generate</p>
+</a>
+
+<div class="chart-container hidden">
+  <canvas id="walletChart"></canvas>
+</div>
+
+    </section>
+  </main>
 
   <footer>
     <p>&copy; 2026 SolChart. All rights reserved.</p>
   </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
 
 </body>
 </html>
