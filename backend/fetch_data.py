@@ -30,7 +30,6 @@ headers = {
 }
 
 response = requests.post(url, json=payload, headers=headers)
-
 print("Status code:", response.status_code)
 
 data = response.json()
