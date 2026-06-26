@@ -124,6 +124,7 @@ function showHoldingsChart(data) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      layout: { padding: { top: 18 } },
       scales: {
         y: {
           beginAtZero: true,
@@ -162,6 +163,7 @@ function showHistoryChart(snapshots) {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        layout: { padding: { top: 18 } },
         plugins: {
           legend: { display: false },
           tooltip: { enabled: false }
@@ -210,6 +212,7 @@ function showHistoryChart(snapshots) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      layout: { padding: { top: 18 } },
       scales: {
         y: {
           beginAtZero: false,
