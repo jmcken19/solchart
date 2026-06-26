@@ -462,9 +462,9 @@ p {
 }
 
 .price-disclaimer {
-  font-size: 10px;
-  color: rgba(53, 38, 19, 0.45);
+  font-size: 9px;
+  color: rgba(53, 38, 19, 0.4);
   text-align: center;
-  margin-top: 8px;
+  margin-bottom: 4px;
   letter-spacing: 0.2px;
 }

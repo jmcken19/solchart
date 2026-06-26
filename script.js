@@ -269,12 +269,13 @@ function resetChart() {
 }
 
 async function handleGenerate() {
-  if (chartGenerated) {
+  const walletAddress = walletInput.value.trim();
+
+  // "Clear" mode: chart is showing and input is empty
+  if (chartGenerated && walletAddress === "") {
     resetChart();
     return;
   }
-
-  const walletAddress = walletInput.value.trim();
 
   if (walletAddress === "") {
     alert("Please enter a Solana wallet address.");
@@ -303,7 +304,9 @@ async function handleGenerate() {
       currentWalletData = data;
       currentWallet = walletAddress;
       currentChartView = "holdings";
+      currentPeriod = "1W";
       setActiveToggle("holdings");
+      setActivePeriod("1W");
 
       showHoldingsChart(data);
       updateWalletTotal(data);
@@ -317,7 +320,7 @@ async function handleGenerate() {
   } catch (error) {
     console.error(error);
     alert("Could not get wallet data. Please try again.");
-    buttonText.textContent = "Generate";
+    buttonText.textContent = chartGenerated ? "Clear" : "Generate";
   }
 }
 
@@ -347,9 +350,9 @@ walletInput.addEventListener("keydown", (event) => {
   }
 });
 
-walletInput.addEventListener("click", () => {
+walletInput.addEventListener("input", () => {
   if (chartGenerated) {
-    resetChart();
+    buttonText.textContent = walletInput.value.trim() ? "Generate" : "Clear";
   }
 });
 
