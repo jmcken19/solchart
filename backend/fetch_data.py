@@ -1,6 +1,8 @@
 import os
 import requests
 from dotenv import load_dotenv
+import json
+
 
 load_dotenv()
 
@@ -61,3 +63,9 @@ for item in items:
             })
 
 print(tokens)
+
+#json file creation
+with open("data.json", "w") as file:
+    json.dump(data, file, indent=4)
+
+

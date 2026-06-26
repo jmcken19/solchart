@@ -7,32 +7,60 @@ let walletChart = null;
 let chartGenerated = false;
 let currentWallet = "";
 
-const chartData = [
-  { token: "SOL", value: 120 },
-  { token: "USDC", value: 75 },
-  { token: "BONK", value: 35 },
-  { token: "JUP", value: 50 }
-];
+// Validate Solana wallet address using regex
+function isValidSolanaAddress(address) {
+  const base58Regex = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
+  return base58Regex.test(address);
+}
 
-generateBtn.addEventListener("click", function () {
-  const walletAddress = walletInput.value.trim();
+//get sol balance
+async function getSolBalance(walletAddress) {
+  const response = await fetch(
+    `http://127.0.0.1:5000/api/wallet/${walletAddress}/balance`  // same, no change
+  );
 
+  if (!response.ok) throw new Error("Unable to fetch SOL balance.");
+
+  return await response.json(); // now returns { sol, tokens }
+}
+//create chart
+function createSolChart(sol, tokens) {
+  const labels = ["SOL", ...tokens.map(t => t.symbol)];
+  const balances = [sol, ...tokens.map(t => t.balance)];
+
+  walletChart = new Chart(document.getElementById("walletChart"), {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{ label: "Token Balances", data: balances }]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
+}
+
+function resetChart() {
+  walletInput.value = "";
+  currentWallet = "";
+  chartGenerated = false;
+
+  if (walletChart !== null) {
+    walletChart.destroy();
+    walletChart = null;
+  }
+
+  chartContainer.classList.add("hidden");
+  buttonText.textContent = "Generate";
+  walletInput.focus();
+}
+
+async function handleGenerate() {
   if (chartGenerated) {
-    walletInput.value = "";
-    currentWallet = "";
-    chartGenerated = false;
-
-    if (walletChart !== null) {
-      walletChart.destroy();
-      walletChart = null;
-    }
-
-    chartContainer.classList.add("hidden");
-    buttonText.textContent = "Generate";
-    walletInput.focus();
-
+    resetChart();
     return;
   }
+
+  //wallet validation 
+  const walletAddress = walletInput.value.trim();
 
   if (walletAddress === "") {
     alert("Please enter a Solana wallet address.");
@@ -40,29 +68,37 @@ generateBtn.addEventListener("click", function () {
     return;
   }
 
-  currentWallet = walletAddress;
-  chartGenerated = true;
+  if (!isValidSolanaAddress(walletAddress)) {
+    alert("Please enter a valid Solana wallet address.");
+    walletInput.focus();
+    return;
+  }
 
-  chartContainer.classList.remove("hidden");
+  try {
+    buttonText.textContent = "Loading...";
 
-  const ctx = document.getElementById("walletChart");
+    const data = await getSolBalance(walletAddress);
+    createSolChart(data.sol, data.tokens); // add tokens here
 
-  walletChart = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: chartData.map(row => row.token),
-      datasets: [
-        {
-          label: "Token Value",
-          data: chartData.map(row => row.value)
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false
-    }
-  });
+    currentWallet = walletAddress;
+    chartGenerated = true;
 
-  buttonText.textContent = "Enter New Address";
+    chartContainer.classList.remove("hidden");
+
+    createSolChart(data.sol);
+
+    buttonText.textContent = "Enter New Address";
+  } catch (error) {
+    console.error(error);
+    alert("Could not get SOL balance. Please try again.");
+    buttonText.textContent = "Generate";
+  }
+}
+
+generateBtn.addEventListener("click", handleGenerate);
+
+walletInput.addEventListener("keydown", function (event) {
+  if (event.key === "Enter") {
+    handleGenerate();
+  }
 });
