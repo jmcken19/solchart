@@ -2,6 +2,7 @@ from flask import Flask, send_from_directory, request, jsonify
 from flask_cors import CORS
 import os
 import requests
+import time
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 from fetch_data import get_token_prices
@@ -13,24 +14,42 @@ ROOT_DIR = os.path.abspath(os.path.join(BASE_DIR, ".."))
 
 PERIOD_DAYS = {"1W": 7, "1M": 30, "3M": 90}
 MIN_LIQUIDITY = 100  # Minimum $100 USD liquidity required to trust a Jupiter price
+CACHE_TTL = 300  # Cache CoinGecko price series for 5 minutes
+
+_price_cache = {}  # { period: { "prices": [...], "fetched_at": float } }
 
 
-def get_portfolio_history(sol, token_usd, period):
-    """
-    Fetches historical SOL prices from CoinGecko and combines with the
-    wallet's current SOL balance and token USD value to produce a time
-    series of estimated total portfolio value.
-    """
+def get_sol_prices(period):
+    """Returns the raw [[timestamp_ms, price], ...] series for SOL, using a
+    short-lived cache to avoid hitting CoinGecko's rate limit."""
+    entry = _price_cache.get(period)
+    if entry and (time.time() - entry["fetched_at"]) < CACHE_TTL:
+        return entry["prices"]
+
     days = PERIOD_DAYS.get(period, 7)
-
+    headers = {}
+    cg_key = os.getenv("COINGECKO_API_KEY")
+    if cg_key:
+        headers["x-cg-demo-api-key"] = cg_key
     response = requests.get(
         "https://api.coingecko.com/api/v3/coins/solana/market_chart",
         params={"vs_currency": "usd", "days": days},
+        headers=headers,
         timeout=10
     )
     response.raise_for_status()
 
-    prices = response.json().get("prices", [])  # [[timestamp_ms, price], ...]
+    prices = response.json().get("prices", [])
+    _price_cache[period] = {"prices": prices, "fetched_at": time.time()}
+    return prices
+
+
+def get_portfolio_history(sol, token_usd, period):
+    """
+    Returns a time series of estimated total portfolio value by combining
+    cached historical SOL prices with the wallet's current balances.
+    """
+    prices = get_sol_prices(period)
 
     return [
         {
