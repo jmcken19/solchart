@@ -178,7 +178,7 @@ function showHistoryChart(snapshots) {
           c.textBaseline = "middle";
           c.fillStyle = "rgba(53, 38, 19, 0.45)";
           c.font = "14px Arial, Helvetica, sans-serif";
-          c.fillText("No history yet. Check back after future visits.", left + width / 2, top + height / 2);
+          c.fillText("No history yet. Check back after future visits. Or the API hit its limit", left + width / 2, top + height / 2);
           c.restore();
         }
       }]
