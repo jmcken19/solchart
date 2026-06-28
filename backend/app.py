@@ -60,7 +60,7 @@ def get_portfolio_history(sol, token_usd, period):
     ]
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["https://jmcken19.github.io"])
 
 
 @app.route("/")

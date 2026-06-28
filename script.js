@@ -15,6 +15,7 @@ let currentWalletData = null;
 let currentChartView = "holdings";
 let currentPeriod = "1W";
 
+
 function isValidSolanaAddress(address) {
   const base58Regex = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
   return base58Regex.test(address);
@@ -22,7 +23,6 @@ function isValidSolanaAddress(address) {
 
 async function getSolBalance(walletAddress) {
   const response = await fetch(`https://solchart.onrender.com/api/wallet/${walletAddress}/balance`);
-  //const response = await fetch(`http://127.0.0.1:10000/api/wallet/${walletAddress}/balance`);
   if (!response.ok) {
     throw new Error("Unable to fetch SOL balance.");
   }
@@ -385,4 +385,10 @@ if (headerTitle) {
   headerTitle.addEventListener("click", () => {
     window.location.reload();
   });
+}
+
+const adminPassword = adminPasswordInput.value;
+
+headers: {
+    "X-Admin-Password": adminPassword
 }
