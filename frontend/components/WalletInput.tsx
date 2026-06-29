@@ -72,6 +72,10 @@ export default function WalletInput({ onGenerate, isLoading, chartGenerated, onC
         {getButtonLabel()}
       </button>
 
+      <p className="text-[10px] text-sol-brown/50 text-center -mt-4 max-w-[260px] leading-relaxed">
+        First load may take up to 30 seconds while the server wakes up.
+      </p>
+
     </div>
   )
 }
