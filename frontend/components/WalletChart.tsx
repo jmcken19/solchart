@@ -11,6 +11,7 @@ import {
   PointElement,
   Tooltip,
   Filler,
+  type TooltipItem,
 } from 'chart.js'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Tooltip, Filler)
@@ -102,7 +103,7 @@ export default function WalletChart({ walletData, walletAddress }: WalletChartPr
     layout: { padding: { top: 18 } },
     plugins: {
       legend: { display: false },
-      tooltip: { callbacks: { label: (ctx: { parsed: { y: number } }) => `$${ctx.parsed.y.toFixed(2)}` } },
+      tooltip: { callbacks: { label: (ctx: TooltipItem<'bar'>) => `$${(ctx.parsed.y ?? 0).toFixed(2)}` } },
     },
     scales: {
       y: { ticks: { callback: (v: string | number) => `$${v}` } },
@@ -131,7 +132,7 @@ export default function WalletChart({ walletData, walletAddress }: WalletChartPr
     layout: { padding: { top: 18 } },
     plugins: {
       legend: { display: false },
-      tooltip: { callbacks: { label: (ctx: { parsed: { y: number } }) => `$${ctx.parsed.y.toFixed(2)}` } },
+      tooltip: { callbacks: { label: (ctx: TooltipItem<'line'>) => `$${(ctx.parsed.y ?? 0).toFixed(2)}` } },
     },
     scales: {
       x: { ticks: { maxTicksLimit: 6 } },
