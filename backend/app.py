@@ -62,6 +62,7 @@ def get_portfolio_history(sol, token_usd, period):
 app = Flask(__name__)
 CORS(app, origins=[
     "https://jmcken19.github.io",
+    "https://solchart-nu.vercel.app",
     "http://localhost:3000",
     "http://172.16.78.246:3000",
 ])
