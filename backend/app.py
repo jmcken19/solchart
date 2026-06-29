@@ -63,6 +63,7 @@ app = Flask(__name__)
 CORS(app, origins=[
     "https://jmcken19.github.io",
     "https://solchart-nu.vercel.app",
+    r"https://solchart.*\.vercel\.app",   # covers all Vercel preview/branch URLs
     "http://localhost:3000",
     "http://172.16.78.246:3000",
 ])
