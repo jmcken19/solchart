@@ -78,7 +78,8 @@ export default function Home() {
       </main>
 
       <footer className="text-center p-5 text-sol-brown text-sm">
-        © 2026 SolChart
+        <p>© 2026 SolChart</p>
+        Wallet addresses are fetched from the Solana blockchain and snapshots are stored in a secure Supabase database for broad analytics.
       </footer>
     </div>
   )

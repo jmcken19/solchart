@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Bar, Line } from 'react-chartjs-2'
+import { Bar, Line, Pie } from 'react-chartjs-2'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -9,12 +9,13 @@ import {
   BarElement,
   LineElement,
   PointElement,
+  ArcElement,
   Tooltip,
   Filler,
   type TooltipItem,
 } from 'chart.js'
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Tooltip, Filler)
+ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Tooltip, Filler)
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL
 
@@ -53,7 +54,7 @@ interface WalletChartProps {
 }
 
 export default function WalletChart({ walletData, walletAddress }: WalletChartProps) {
-  const [view, setView] = useState<'holdings' | 'history'>('holdings')
+  const [view, setView] = useState<'holdings' | 'pie' | 'history'>('holdings')
   const [period, setPeriod] = useState<'1W' | '1M' | '3M'>('1W')
   const [historyData, setHistoryData] = useState<HistoryPoint[]>([])
   const [historyLoading, setHistoryLoading] = useState(false)
@@ -110,6 +111,38 @@ export default function WalletChart({ walletData, walletAddress }: WalletChartPr
     },
   }
 
+  // --- Pie chart ---
+  const pieColors = ['#68C46E', '#A8AD52', '#C4A268', '#68A8C4', '#C468A8', '#A8C468', '#C46868', '#6868C4']
+  const pieSortedItems = [...holdingItems].sort((a, b) => b.value - a.value)
+
+  const pieData = {
+    labels: pieSortedItems.map(i => i.label),
+    datasets: [{
+      data: pieSortedItems.map(i => i.value),
+      backgroundColor: pieSortedItems.map((_, idx) => pieColors[idx % pieColors.length]),
+      borderWidth: 1,
+      borderColor: 'rgba(255,255,255,0.6)',
+    }],
+  }
+
+  const pieOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    layout: { padding: { top: 4 } },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx: TooltipItem<'pie'>) => {
+            const val = (ctx.parsed as number) ?? 0
+            const pct = totalUsd > 0 ? ((val / totalUsd) * 100).toFixed(1) : '0.0'
+            return `${ctx.label}: $${val.toFixed(2)} (${pct}%)`
+          },
+        },
+      },
+    },
+  }
+
   // --- History line chart ---
   const historyChartData = {
     labels: historyData.map(p => {
@@ -146,7 +179,7 @@ export default function WalletChart({ walletData, walletAddress }: WalletChartPr
       {/* Holdings / History toggle */}
       <div className="flex justify-center mb-4">
         <div className="flex bg-[rgba(53,38,19,0.1)] rounded-[20px] p-1">
-          {(['holdings', 'history'] as const).map(v => (
+          {(['holdings', 'pie', 'history'] as const).map(v => (
             <button
               key={v}
               onClick={() => setView(v)}
@@ -184,13 +217,47 @@ export default function WalletChart({ walletData, walletAddress }: WalletChartPr
       {/* Chart card */}
       <div className="relative w-full h-[350px] bg-white/25 border border-[rgba(53,38,19,0.2)] rounded-[16px] p-6">
 
-        {/* Total USD badge */}
-        <div className="absolute top-4 right-5 text-[13px] font-bold text-sol-brown bg-[rgba(242,231,217,0.82)] border border-[rgba(53,38,19,0.12)] rounded-lg px-2.5 py-1 pointer-events-none z-10">
-          ${totalUsd.toFixed(2)}
-        </div>
+        {/* Total USD badge — hidden on pie view since legend shows values */}
+        {view !== 'pie' && (
+          <div className="absolute top-4 right-5 text-[13px] font-bold text-sol-brown bg-[rgba(242,231,217,0.82)] border border-[rgba(53,38,19,0.12)] rounded-lg px-2.5 py-1 pointer-events-none z-10">
+            ${totalUsd.toFixed(2)}
+          </div>
+        )}
 
         {view === 'holdings' && (
           <Bar data={holdingsData} options={holdingsOptions} plugins={[disclaimerPlugin]} />
+        )}
+
+        {view === 'pie' && (
+          <div className="flex h-full gap-2">
+            {/* Pie chart */}
+            <div className="relative flex-1 min-w-0">
+              <Pie data={pieData} options={pieOptions} plugins={[disclaimerPlugin]} />
+            </div>
+
+            {/* Legend — sorted descending */}
+            <div className="flex flex-col justify-start gap-2 w-[165px] shrink-0 overflow-y-auto py-1 pr-1">
+              <div className="text-[11px] font-bold text-sol-brown mb-1">
+                Total: ${totalUsd.toFixed(2)}
+              </div>
+              {pieSortedItems.map((item, idx) => {
+                const pct = totalUsd > 0 ? ((item.value / totalUsd) * 100).toFixed(1) : '0.0'
+                return (
+                  <div key={item.label} className="flex items-center gap-1.5 text-[11px]">
+                    <span
+                      className="w-2.5 h-2.5 rounded-full shrink-0"
+                      style={{ backgroundColor: pieColors[idx % pieColors.length] }}
+                    />
+                    <span className="font-medium text-sol-brown truncate">{item.label}</span>
+                    <span className="ml-auto text-sol-brown/60 shrink-0 pl-1 text-right">
+                      ${item.value.toFixed(2)}<br />
+                      <span className="text-[10px]">{pct}%</span>
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
         )}
 
         {view === 'history' && historyLoading && (
