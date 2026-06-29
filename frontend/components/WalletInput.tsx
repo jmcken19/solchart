@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 
 function isValidSolanaAddress(address: string): boolean {
   return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address)
@@ -11,10 +10,11 @@ interface WalletInputProps {
   isLoading: boolean
   chartGenerated: boolean
   onClear: () => void
+  address: string
+  onAddressChange: (value: string) => void
 }
 
-export default function WalletInput({ onGenerate, isLoading, chartGenerated, onClear }: WalletInputProps) {
-  const [address, setAddress] = useState('')
+export default function WalletInput({ onGenerate, isLoading, chartGenerated, onClear, address, onAddressChange }: WalletInputProps) {
 
   const hasContent = address.trim().length > 0
 
@@ -53,7 +53,7 @@ export default function WalletInput({ onGenerate, isLoading, chartGenerated, onC
         <input
           type="text"
           value={address}
-          onChange={(e) => setAddress(e.target.value)}
+          onChange={(e) => onAddressChange(e.target.value)}
           className="peer w-full py-2.5 pl-1.5 border-0 border-b border-sol-brown bg-transparent text-sol-brown text-[11px] tracking-[0.2px] focus:outline-none"
         />
         <label className={`absolute left-1.5 font-normal pointer-events-none transition-all duration-200 peer-focus:-top-5 peer-focus:text-[13px] peer-focus:text-sol-green ${labelFloated}`}>

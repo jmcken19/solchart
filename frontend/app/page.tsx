@@ -17,6 +17,7 @@ export default function Home() {
   const [chartGenerated, setChartGenerated] = useState(false)
   const [walletData, setWalletData] = useState<WalletData | null>(null)
   const [currentAddress, setCurrentAddress] = useState('')
+  const [address, setAddress] = useState('')
 
   async function handleGenerate(address: string) {
     setIsLoading(true)
@@ -52,6 +53,7 @@ export default function Home() {
     setChartGenerated(false)
     setWalletData(null)
     setCurrentAddress('')
+    setAddress('')
   }
 
   return (
@@ -69,6 +71,8 @@ export default function Home() {
             isLoading={isLoading}
             chartGenerated={chartGenerated}
             onClear={handleClear}
+            address={address}
+            onAddressChange={setAddress}
           />
 
           {walletData && currentAddress && (
